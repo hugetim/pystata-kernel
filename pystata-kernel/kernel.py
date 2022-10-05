@@ -87,7 +87,13 @@ class PyStataKernel(IPythonKernel):
         if code != '':
             # Execute Stata code after magics
             from pystata.stata import run
-            run(code, quietly=self.suppress, inline=True, echo=self.echo)
+	    if self.suppress == True:        
+                program_code = "program temporary_pystata_program_name\n" + code + ("\nend\n") 
+                run(program_code, quietly=True)
+		run("temporary_pystata_program_name", quietly=False, inline=True, echo=False)
+		run("program drop temporary_pystata_program_name", quietly=True)
+	    else:
+                run(code, quietly=False, inline=True, echo=self.echo)
 
         self.shell.execution_count += 1
 
